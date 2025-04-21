@@ -9,5 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class DeliveryDTO {
     private String deliveryId;
+    private String currentLocation;
+    private String deliveryStatus;
     private String trackingNumber;
 }

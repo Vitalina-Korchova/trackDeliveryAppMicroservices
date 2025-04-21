@@ -9,5 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
+    Optional<Order> findByDeliveryId(String deliveryId);
 
 }

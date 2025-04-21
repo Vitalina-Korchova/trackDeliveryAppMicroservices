@@ -7,6 +7,7 @@ import com.trackdelivery.orderservice.dto.ProductDTO;
 import com.trackdelivery.orderservice.mapper.OrderMapper;
 import com.trackdelivery.orderservice.model.Order;
 import com.trackdelivery.orderservice.repository.OrderRepository;
+import com.trackdelivery.orderservice.response.ResponseOrderByTracking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -167,5 +168,44 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
         orderRepository.delete(order);
     }
+
+
+    public ResponseOrderByTracking getOrderInfoByTrackingNumber(String trackingNumber) {
+        DeliveryDTO delivery = restTemplate.getForObject(
+                deliveryServiceUrl + "/deliveries/connection-micro/track/" + trackingNumber,
+                DeliveryDTO.class);
+
+        if (delivery == null) {
+            throw new RuntimeException("Delivery not found with tracking number: " + trackingNumber);
+        }
+
+        Order order = orderRepository.findByDeliveryId(delivery.getDeliveryId())
+                .orElseThrow(() -> new RuntimeException("Order not found with tracking number: " + trackingNumber));
+
+        CustomerDTO customer = restTemplate.getForObject(
+                customerServiceUrl + "/customers/" + order.getCustomerId(),
+                CustomerDTO.class);
+        String customerName = customer.getName();
+
+        List<String> productNames = order.getProductsId().stream()
+                .map(productId -> {
+                    ProductDTO product = restTemplate.getForObject(
+                            productServiceUrl + "/products/" + productId,
+                            ProductDTO.class
+                    );
+                    return product.getName();
+                })
+                .toList();
+
+        return new ResponseOrderByTracking(
+                customerName,
+                productNames,
+                order.getTotalAmount(),
+                order.getShippingAddress(),
+                delivery.getCurrentLocation(),
+                delivery.getDeliveryStatus()
+        );
+    }
+
 
 }

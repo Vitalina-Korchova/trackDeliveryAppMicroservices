@@ -3,6 +3,7 @@ package com.trackdelivery.orderservice.controller;
 import com.trackdelivery.orderservice.dto.OrderDTO;
 import com.trackdelivery.orderservice.mapper.OrderMapper;
 import com.trackdelivery.orderservice.model.Order;
+import com.trackdelivery.orderservice.response.ResponseOrderByTracking;
 import com.trackdelivery.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,12 @@ public class OrderController {
         )).toList();
 
         return ResponseEntity.ok(orderDTOs);
+    }
+
+    @GetMapping("/tracking/{trackingNumber}")
+    public ResponseEntity<ResponseOrderByTracking> getOrderByTracking(@PathVariable String trackingNumber) {
+        ResponseOrderByTracking response = orderService.getOrderInfoByTrackingNumber(trackingNumber);
+        return ResponseEntity.ok(response);
     }
 
 
