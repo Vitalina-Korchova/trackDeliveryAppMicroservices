@@ -38,13 +38,13 @@ public class OrderService {
 
     public Order save(OrderDTO dto) {
 
-        //  Get Customer by name
+
         CustomerDTO customer = restTemplate.getForObject(
                 customerServiceUrl + "/customers/connection-micro/name/" + dto.getCustomerName(),
                 CustomerDTO.class);
         String customerId = customer.getCustomerId();
 
-        // Get Product list by names (POST request)
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<List<String>> productRequest = new HttpEntity<>(dto.getProductsName(), headers);
@@ -60,7 +60,7 @@ public class OrderService {
                 .map(ProductDTO::getProductId)
                 .toList();
 
-        // Get Delivery by track number
+
         DeliveryDTO delivery = restTemplate.getForObject(
                 deliveryServiceUrl + "/deliveries/connection-micro/track/" + dto.getTrackingNumber(),
                 DeliveryDTO.class);
