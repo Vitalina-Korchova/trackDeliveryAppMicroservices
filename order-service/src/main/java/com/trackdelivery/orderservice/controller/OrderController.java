@@ -7,6 +7,7 @@ import com.trackdelivery.orderservice.response.ResponseOrderByTracking;
 import com.trackdelivery.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
@@ -58,7 +59,10 @@ public class OrderController {
 
     @PostMapping
     public Order createOrder(@RequestBody OrderDTO orderDTO) {
-        return orderService.save(orderDTO);
+        Order createdOrder = orderService.save(orderDTO);
+        kafkaTemplate.send("order-topic", orderDTO);
+        return createdOrder;
+
     }
 
     @PutMapping("/{id}")
